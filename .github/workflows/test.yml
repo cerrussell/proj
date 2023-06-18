@@ -1,218 +1,220 @@
 on:
     push:
         branches:
-          - main
-          - staging
-          - trying
+            - main
+            - staging
+            - trying
+            - winbuilds
     pull_request:
     workflow_dispatch:
-    
+
 name: proj ci    
 jobs:
     proj-windows:
         runs-on: windows-latest
-        defaults:
-            run:
-                shell: msys2 {}
         strategy:
             matrix:
                 features: ["", "--features network"]
-        steps:
-            - uses: actions/checkout@v3
-            
-            - uses: msys2/setup-msys2@v2
-              with:
-                msystem: UCRT64
-                update: true
-                install: git mingw-w64-ucrt-x86_64-gcc
-                    
-            - name: Install dependencies
-              run: |
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
-                pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-proj
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
-            
-            - name: Build
-              run: |
+                include:
+                  - { sys: mingw64, env: x86_64 }
+                  - { sys: ucrt64,  env: ucrt-x86_64 }
+                  - { sys: clang64, env: clang-x86_64 }
+        defaults:
+            run: 
+                shell: msys2 {}
+        steps:            
+          - uses: actions/checkout@v3  
+          - name: Install dependencies
+            run: |
+                set MSYSTEM=${{ matrix.sys }}
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-sqlite3
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-proj
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-clang
+
+          - name: Build
+            run: |
+                set MSYSTEM=${{ matrix.sys }}
                 cargo build
                 cargo test
-            
 
     proj-sys-windows:
         runs-on: windows-latest
         env:
             _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
             working-directory: proj-sys
-        defaults:
-            run:
-                shell: msys2 {}
         strategy:
             matrix:
                 features: ["", "--features network"]
+                include:
+                  - { sys: mingw64, env: x86_64 }
+                  - { sys: ucrt64,  env: ucrt-x86_64 }
+                  - { sys: clang64, env: clang-x86_64 }
+        defaults:
+            run:
+                shell: msys2 {}
         steps:
-            - uses: actions/checkout@v3
-            - uses: msys2/setup-msys2@v2
-              with:
-                msystem: UCRT64
-                update: true
-                install: git mingw-w64-ucrt-x86_64-gcc
-            - name: Install dependencies
-              run: |
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
-                pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
-                pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
-            
-            - name: Build
-              run: |
+          - uses: actions/checkout@v3
+          - name: Install dependencies
+            run: |
+                set MSYSTEM=${{ matrix.sys }}
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-sqlite3
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-clang
+
+          - name: Build and Test
+            run: |
+                set MSYSTEM=${{ matrix.sys }}
                 cargo build
                 cargo test
 
 # jobs:
-  # # The `ci-result` job doesn't actually test anything - it just aggregates the
-  # # overall build status for bors, otherwise our bors.toml would need an entry
-  # # for each individual job produced by the job-matrix.
-  # #
-  # # Ref: https://github.com/rust-lang/crater/blob/9ab6f9697c901c4a44025cf0a39b73ad5b37d198/.github/workflows/bors.yml#L125-L149
-  # #
-  # # ALL THE SUBSEQUENT JOBS NEED THEIR key ADDED TO THE `needs` SECTION OF THIS JOB!
-  # ci-result:
-    # name: ci result
-    # runs-on: ubuntu-latest
-    # needs:
-      # - proj-ubuntu
-      # - proj-sys-ubuntu
-      # - proj-macos
-      # - proj-sys-macos
-    # steps:
-      # - name: Mark the job as a success
-        # if: success()
-        # run: exit 0
-      # - name: Mark the job as a failure
-        # if: "!success()"
-        # run: exit 1
+# # The `ci-result` job doesn't actually test anything - it just aggregates the
+# # overall build status for bors, otherwise our bors.toml would need an entry
+# # for each individual job produced by the job-matrix.
+# #
+# # Ref: https://github.com/rust-lang/crater/blob/9ab6f9697c901c4a44025cf0a39b73ad5b37d198/.github/workflows/bors.yml#L125-L149
+# #
+# # ALL THE SUBSEQUENT JOBS NEED THEIR key ADDED TO THE `needs` SECTION OF THIS JOB!
+# ci-result:
+# name: ci result
+# runs-on: ubuntu-latest
+# needs:
+# - proj-ubuntu
+# - proj-sys-ubuntu
+# - proj-macos
+# - proj-sys-macos
+# steps:
+# - name: Mark the job as a success
+# if: success()
+# run: exit 0
+# - name: Mark the job as a failure
+# if: "!success()"
+# run: exit 1
 
-  # proj-ubuntu:
-    # name: proj ubuntu
-    # if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    # runs-on: ubuntu-latest
-    # strategy:
-      # fail-fast: false
-      # matrix:
-        # container_image:
-          # # Minimum supported rust (MSRV)
-          # - "georust/proj-ci:proj-9.1.0-rust-1.63"
-          # # Latest stable rust
-          # - "georust/proj-ci:proj-9.1.0-rust-1.70"
-        # features:
-          # - ""
-          # - "--features network"
-          # - "--features bundled_proj"
-          # - "--no-default-features"
-          # - "--features \"network bundled_proj\""
-          # - "--features \"network geo-types\""
-          # - "--features \"bundled_proj geo-types\""
-          # - "--features \"network bundled_proj geo-types\""
-    # container:
-      # image: ${{ matrix.container_image }}
-    # steps:
-      # - name: Checkout repository
-        # uses: actions/checkout@v2
-      # - run: cargo build ${{ matrix.features }}
-      # - run: cargo test ${{ matrix.features }}
+# proj-ubuntu:
+# name: proj ubuntu
+# if: "!contains(github.event.head_commit.message, '[skip ci]')"
+# runs-on: ubuntu-latest
+# strategy:
+# fail-fast: false
+# matrix:
+# container_image:
+# # Minimum supported rust (MSRV)
+# - "georust/proj-ci:proj-9.1.0-rust-1.63"
+# # Latest stable rust
+# - "georust/proj-ci:proj-9.1.0-rust-1.70"
+# features:
+# - ""
+# - "--features network"
+# - "--features bundled_proj"
+# - "--no-default-features"
+# - "--features \"network bundled_proj\""
+# - "--features \"network geo-types\""
+# - "--features \"bundled_proj geo-types\""
+# - "--features \"network bundled_proj geo-types\""
+# container:
+# image: ${{ matrix.container_image }}
+# steps:
+# - name: Checkout repository
+# uses: actions/checkout@v2
+# - run: cargo build ${{ matrix.features }}
+# - run: cargo test ${{ matrix.features }}
 
-  # proj-macos:
-    # name: proj macos
-    # if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    # runs-on: macos-latest
-    # strategy:
-      # fail-fast: false
-      # matrix:
-        # features: ["", "--features network"]
-    # steps:
-      # - name: Checkout repository
-        # uses: actions/checkout@v2
-      # - run: cargo build ${{ matrix.features }}
-      # - run: cargo test ${{ matrix.features }}
+# proj-macos:
+# name: proj macos
+# if: "!contains(github.event.head_commit.message, '[skip ci]')"
+# runs-on: macos-latest
+# strategy:
+# fail-fast: false
+# matrix:
+# features: ["", "--features network"]
+# steps:
+# - name: Checkout repository
+# uses: actions/checkout@v2
+# - run: cargo build ${{ matrix.features }}
+# - run: cargo test ${{ matrix.features }}
 
-  # proj-sys-ubuntu:
-    # name: proj-sys ubuntu
-    # if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    # runs-on: ubuntu-latest
-    # defaults:
-      # run:
-        # working-directory: proj-sys
-    # container: ${{ matrix.container }}
-    # strategy:
-      # matrix:
-        # include:
-          # # Minimum supported rust (MSRV)
-          # - container:
-              # image: georust/proj-ci:proj-9.1.0-rust-1.63
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
-            # features: ""
-          # - container:
-              # image: georust/proj-ci:proj-9.1.0-rust-1.63
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
-            # features: "--features bundled_proj"
-          # - container:
-              # image: georust/proj-ci-without-system-proj:proj-9.1.0-rust-1.63
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
-            # features: ""
+# proj-sys-ubuntu:
+# name: proj-sys ubuntu
+# if: "!contains(github.event.head_commit.message, '[skip ci]')"
+# runs-on: ubuntu-latest
+# defaults:
+# run:
+# working-directory: proj-sys
+# container: ${{ matrix.container }}
+# strategy:
+# matrix:
+# include:
+# # Minimum supported rust (MSRV)
+# - container:
+# image: georust/proj-ci:proj-9.1.0-rust-1.63
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
+# features: ""
+# - container:
+# image: georust/proj-ci:proj-9.1.0-rust-1.63
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
+# features: "--features bundled_proj"
+# - container:
+# image: georust/proj-ci-without-system-proj:proj-9.1.0-rust-1.63
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
+# features: ""
 
-          # # Latest stable rust
-          # - container:
-              # image: georust/proj-ci:proj-9.1.0-rust-1.70
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
-            # features: ""
-          # - container:
-              # image: georust/proj-ci:proj-9.1.0-rust-1.70
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
-            # features: "--features bundled_proj"
-          # - container:
-              # image: georust/proj-ci-without-system-proj:proj-9.1.0-rust-1.70
-              # env:
-                # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
-            # features: ""
-    # steps:
-      # - name: Checkout repository
-        # uses: actions/checkout@v2
-      # - run: cargo build ${{ matrix.features }}
-      # - run: cargo test ${{ matrix.features }}
+# # Latest stable rust
+# - container:
+# image: georust/proj-ci:proj-9.1.0-rust-1.70
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
+# features: ""
+# - container:
+# image: georust/proj-ci:proj-9.1.0-rust-1.70
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
+# features: "--features bundled_proj"
+# - container:
+# image: georust/proj-ci-without-system-proj:proj-9.1.0-rust-1.70
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 1
+# features: ""
+# steps:
+# - name: Checkout repository
+# uses: actions/checkout@v2
+# - run: cargo build ${{ matrix.features }}
+# - run: cargo test ${{ matrix.features }}
 
-  # proj-sys-macos:
-    # name: proj-sys macos
-    # if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    # runs-on: macos-latest
-    # env:
-      # _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
-    # defaults:
-      # run:
-        # working-directory: proj-sys
-    # steps:
-      # - name: Checkout repository
-        # uses: actions/checkout@v2
-      # # At some point around Feb. 2023, the GH macos CI runner no longer had
-      # # pkg-config installed by default, so we need to install it manually.
-      # #
-      # # This PR (merged a couple days ago) adds pkg-config back to the macos
-      # # build: https://github.com/actions/runner-images/pull/7125
-      # #
-      # # but it seems like it hasn't been deployed yet. At some point we should
-      # # be able to delete this step if CI passes.
-      # - run: brew install pkg-config
-      # - run: brew install proj
-      # - run: cargo test
+# proj-sys-macos:
+# name: proj-sys macos
+# if: "!contains(github.event.head_commit.message, '[skip ci]')"
+# runs-on: macos-latest
+# env:
+# _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
+# defaults:
+# run:
+# working-directory: proj-sys
+# steps:
+# - name: Checkout repository
+# uses: actions/checkout@v2
+# # At some point around Feb. 2023, the GH macos CI runner no longer had
+# # pkg-config installed by default, so we need to install it manually.
+# #
+# # This PR (merged a couple days ago) adds pkg-config back to the macos
+# # build: https://github.com/actions/runner-images/pull/7125
+# #
+# # but it seems like it hasn't been deployed yet. At some point we should
+# # be able to delete this step if CI passes.
+# - run: brew install pkg-config
+# - run: brew install proj
+# - run: cargo test
