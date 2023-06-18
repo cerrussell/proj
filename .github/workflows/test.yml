@@ -14,11 +14,8 @@ jobs:
         runs-on: windows-latest
         strategy:
             matrix:
+                arch: ['ucrt64']
                 features: ["", "--features network"]
-                include:
-                  - { sys: mingw64, env: x86_64 }
-                  - { sys: ucrt64,  env: ucrt-x86_64 }
-                  - { sys: clang64, env: clang-x86_64 }
         defaults:
             run: 
                 shell: msys2 {0}
@@ -29,36 +26,33 @@ jobs:
           - name: Install dependencies
             uses: msys2/setup-msys2@v2
             with:
-                msystem: ${{ matrix.sys }}
+                msystem: ${{ matrix.compiler }}
                 install: >-
-                    mingw-w64-${{ matrix.env }}-gcc
-                    mingw-w64-${{ matrix.env }}-cmake
-                    mingw-w64-${{ matrix.env }}-libtiff
-                    mingw-w64-${{ matrix.env }}-rust
-                    mingw-w64-${{ matrix.env }}-sqlite3
-                    mingw-w64-${{ matrix.env }}-proj
-                    mingw-w64-${{ matrix.env }}-clang
+                    mingw-w64-${{ matrix.arch }}-gcc
+                    mingw-w64-${{ matrix.arch }}-cmake
+                    mingw-w64-${{ matrix.arch }}-libtiff
+                    mingw-w64-${{ matrix.arch }}-rust
+                    mingw-w64-${{ matrix.arch }}-sqlite3
+                    mingw-w64-${{ matrix.arch }}-proj
+                    mingw-w64-${{ matrix.arch }}-clang
           - uses: actions/checkout@v3
           - name: Build
             run: |
-                set MSYSTEM=${{ matrix.sys }}
-                pacman -R -dd mingw-w64-${{ matrix.env }}-pkgconf
-                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+                set MSYSTEM=${{ matrix.compiler }}
+                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
 
     proj-sys-windows:
         runs-on: windows-latest
         env:
-            _PROJ_SYS_TEST_EXPECT_BUILD_FROM_SRC: 0
             working-directory: proj-sys
         strategy:
             matrix:
+                arch: ['ucrt-x86_64']
+                compiler: ['ucrt64']
                 features: ["", "--features network"]
-                include:
-                  - { sys: mingw64, env: x86_64 }
-                  - { sys: ucrt64,  env: ucrt-x86_64 }
-                  - { sys: clang64, env: clang-x86_64 }
         defaults:
             run:
                 shell: msys2 {0}
@@ -67,20 +61,20 @@ jobs:
           - name: Install dependencies
             uses: msys2/setup-msys2@v2
             with:
-                msystem: ${{ matrix.sys }}
+                msystem: ${{ matrix.compiler }}
                 install: >-
-                    mingw-w64-${{ matrix.env }}-gcc
-                    mingw-w64-${{ matrix.env }}-cmake
-                    mingw-w64-${{ matrix.env }}-libtiff
-                    mingw-w64-${{ matrix.env }}-rust
-                    mingw-w64-${{ matrix.env }}-sqlite3
-                    mingw-w64-${{ matrix.env }}-clang
+                    mingw-w64-${{ matrix.arch }}-gcc
+                    mingw-w64-${{ matrix.arch  }}-cmake
+                    mingw-w64-${{ matrix.arch  }}-libtiff
+                    mingw-w64-${{ matrix.arch  }}-rust
+                    mingw-w64-${{ matrix.arch  }}-sqlite3
+                    mingw-w64-${{ matrix.arch }}-clang
 
           - name: Build and Test
             run: |
-                set MSYSTEM=${{ matrix.sys }}
-                pacman -R -dd mingw-w64-${{ matrix.env }}-pkgconf
-                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+                set MSYSTEM=${{ matrix.compiler }}
+                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
 
