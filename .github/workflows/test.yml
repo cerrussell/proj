@@ -43,8 +43,6 @@ jobs:
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build --config ./proj-sys/Cargo.toml
                 cargo test  --config ./proj-sys/Cargo.toml
-                cargo build
-                cargo test
     proj-sys-windows:
         strategy:
             matrix:
@@ -74,8 +72,9 @@ jobs:
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
-                cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml  
+                cd ./proj-sys
+                cargo build
+                cargo test 
 # jobs:
 # # The `ci-result` job doesn't actually test anything - it just aggregates the
 # # overall build status for bors, otherwise our bors.toml would need an entry
