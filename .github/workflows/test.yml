@@ -5,7 +5,8 @@ on:
           - staging
           - trying
     pull_request:
-  
+    
+jobs:
     proj-windows:
         runs-on: windows-latest
         defaults:
@@ -18,26 +19,26 @@ on:
             - uses: actions/checkout@v3
             
             - uses: msys2/setup-msys2@v2
-                with:
-                    msystem: UCRT64
-                    update: true
-                    install: git mingw-w64-ucrt-x86_64-gcc
+              with:
+                msystem: UCRT64
+                update: true
+                install: git mingw-w64-ucrt-x86_64-gcc
                     
             - name: Install dependencies
-                run: |
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
-                    pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-proj
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
+              run: |
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
+                pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-proj
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
             
             - name: Build
-                run: |
-                    cargo build
-                    cargo test
+              run: |
+                cargo build
+                cargo test
             
 
     proj-sys-windows:
@@ -54,24 +55,24 @@ on:
         steps:
             - uses: actions/checkout@v3
             - uses: msys2/setup-msys2@v2
-                with:
-                    msystem: UCRT64
-                    update: true
-                    install: git mingw-w64-ucrt-x86_64-gcc
+              with:
+                msystem: UCRT64
+                update: true
+                install: git mingw-w64-ucrt-x86_64-gcc
             - name: Install dependencies
-                run: |
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
-                    pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
-                    pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
+              run: |
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-cmake
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-libtiff
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-rust
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-sqlite3
+                pacman -R -dd --noconfirm mingw-w64-ucrt-x86_64-pkgconf
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
+                pacman -S --noconfirm mingw-w64-ucrt-x86_64-clang
             
             - name: Build
-                run: |
-                    cargo build
-                    cargo test
+              run: |
+                cargo build
+                cargo test
 
 # name: proj ci
 # jobs:
