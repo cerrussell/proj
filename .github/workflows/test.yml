@@ -19,14 +19,18 @@ jobs:
                   - { sys: mingw64, env: x86_64 }
                   - { sys: ucrt64,  env: ucrt-x86_64 }
                   - { sys: clang64, env: clang-x86_64 }
+        env:
+            MSYSTEM: ${{ matrix.sys }}
         defaults:
             run: 
                 shell: msys2 {0}
-        steps:            
-          - uses: actions/checkout@v3  
+        steps:
+          - uses: actions/checkout@v3
+          - name: Get msys2 into PATH
+            shell: pwsh
+            run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           - name: Install dependencies
             run: |
-                set MSYSTEM=${{ matrix.sys }}
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
@@ -36,10 +40,8 @@ jobs:
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-proj
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-clang
-
           - name: Build
             run: |
-                set MSYSTEM=${{ matrix.sys }}
                 cargo build
                 cargo test
 
@@ -60,6 +62,9 @@ jobs:
                 shell: msys2 {0}
         steps:
           - uses: actions/checkout@v3
+          - name: Get msys2 into PATH
+            shell: pwsh
+            run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           - name: Install dependencies
             run: |
                 set MSYSTEM=${{ matrix.sys }}
@@ -74,7 +79,6 @@ jobs:
 
           - name: Build and Test
             run: |
-                set MSYSTEM=${{ matrix.sys }}
                 cargo build
                 cargo test
 
