@@ -16,7 +16,7 @@ jobs:
             matrix:
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
-                features: ["", "--features network"]
+                features: [""]
         defaults:
             run: 
                 shell: msys2 {0}
@@ -53,7 +53,7 @@ jobs:
             matrix:
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
-                features: ["", "--features network"]
+                features: [""]
         defaults:
             run:
                 shell: msys2 {0}
