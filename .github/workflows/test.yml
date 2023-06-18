@@ -41,8 +41,9 @@ jobs:
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cargo build --config ./proj-sys/Cargo.toml
-                cargo test  --config ./proj-sys/Cargo.toml
+                cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
+                cargo test  --config ./proj-sys/Cargo.toml --config Cargo.toml
+                
     proj-sys-windows:
         strategy:
             matrix:
@@ -54,6 +55,7 @@ jobs:
         defaults:
             run:
                 shell: msys2 {0}
+                working-directory: proj-sys
         steps:
           - name: Install dependencies
             uses: msys2/setup-msys2@v2
@@ -72,7 +74,6 @@ jobs:
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cd ./proj-sys
                 cargo build
                 cargo test 
 # jobs:
