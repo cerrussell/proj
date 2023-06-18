@@ -36,14 +36,14 @@ jobs:
                     mingw-w64-${{ matrix.env }}-libtiff
                     mingw-w64-${{ matrix.env }}-rust
                     mingw-w64-${{ matrix.env }}-sqlite3
-                    mingw-w64-${{ matrix.env }}-pkgconf
-                    mingw-w64-${{ matrix.env }}-pkg-config
                     mingw-w64-${{ matrix.env }}-proj
                     mingw-w64-${{ matrix.env }}-clang
           - uses: actions/checkout@v3
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.sys }}
+                pacman -R -dd mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
                 cargo build
                 cargo test
 
@@ -74,13 +74,13 @@ jobs:
                     mingw-w64-${{ matrix.env }}-libtiff
                     mingw-w64-${{ matrix.env }}-rust
                     mingw-w64-${{ matrix.env }}-sqlite3
-                    mingw-w64-${{ matrix.env }}-pkgconf
-                    mingw-w64-${{ matrix.env }}-pkg-config
                     mingw-w64-${{ matrix.env }}-clang
 
           - name: Build and Test
             run: |
                 set MSYSTEM=${{ matrix.sys }}
+                pacman -R -dd mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
                 cargo build
                 cargo test
 
