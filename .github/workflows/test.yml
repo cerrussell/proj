@@ -14,7 +14,8 @@ jobs:
         runs-on: windows-latest
         strategy:
             matrix:
-                arch: ['ucrt64']
+                arch: ['ucrt-x86_64']
+                compiler: ['UCRT64']
                 features: ["", "--features network"]
         defaults:
             run: 
@@ -51,7 +52,7 @@ jobs:
         strategy:
             matrix:
                 arch: ['ucrt-x86_64']
-                compiler: ['ucrt64']
+                compiler: ['UCRT64']
                 features: ["", "--features network"]
         defaults:
             run:
