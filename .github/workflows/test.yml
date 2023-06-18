@@ -11,12 +11,13 @@ on:
 name: proj ci    
 jobs:
     proj-windows:
-        runs-on: windows-latest
         strategy:
             matrix:
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
-                features: [""]
+                os: ['windows-2022', 'windows-2019']
+                features: ["", --features network]
+        runs-on: ${{ matrix.os }}
         defaults:
             run: 
                 shell: msys2 {0}
@@ -30,30 +31,21 @@ jobs:
                 msystem: ${{ matrix.compiler }}
                 install: >-
                     mingw-w64-${{ matrix.arch }}-gcc
-                    mingw-w64-${{ matrix.arch }}-libtiff
                     mingw-w64-${{ matrix.arch }}-cmake
                     mingw-w64-${{ matrix.arch }}-pkg-config
                     mingw-w64-${{ matrix.arch }}-rust
-                    mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-proj
                     mingw-w64-${{ matrix.arch }}-clang
           - uses: actions/checkout@v3
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                #PKGCONF=$(pkgconf --version)
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
-                
-          - name: Test
-            run: |
-                 cargo test
-
+                cargo test
     proj-sys-windows:
         runs-on: windows-latest
-        env:
-            working-directory: proj-sys
         strategy:
             matrix:
                 arch: ['ucrt-x86_64']
@@ -73,18 +65,15 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-cmake
                     mingw-w64-${{ matrix.arch }}-rust
                     mingw-w64-${{ matrix.arch }}-sqlite3
-                    mingw-w64-${{ matrix.arch }}-clang
-                    
+                    mingw-w64-${{ matrix.arch }}-clang 
           - uses: actions/checkout@v3
-
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                #PKGCONF=$(pkgconf --version)
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cargo build
-                
+                cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
+                cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
           - name: Test
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
