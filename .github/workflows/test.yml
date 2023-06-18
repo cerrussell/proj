@@ -21,12 +21,11 @@ jobs:
                   - { sys: clang64, env: clang-x86_64 }
         defaults:
             run: 
-                shell: C:/msys64/msys2.exe
+                shell: msys2 {}
         steps:            
           - uses: actions/checkout@v3  
           - name: Install dependencies
             run: |
-                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 set MSYSTEM=${{ matrix.sys }}
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
@@ -58,13 +57,13 @@ jobs:
                   - { sys: clang64, env: clang-x86_64 }
         defaults:
             run:
-                shell: C:/msys64/msys2.exe
+                shell: msys2 {}
         steps:
           - uses: actions/checkout@v3
           - name: Install dependencies
             run: |
-                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 set MSYSTEM=${{ matrix.sys }}
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
