@@ -30,20 +30,20 @@ jobs:
             uses: msys2/setup-msys2@v2
             with:
                 msystem: ${{ matrix.sys }}
-                install: |
-                    set MSYSTEM=${{ matrix.sys }}
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-sqlite3
-                    pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-proj
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-clang
+                install: >-
+                    mingw-w64-${{ matrix.env }}-gcc
+                    mingw-w64-${{ matrix.env }}-cmake
+                    mingw-w64-${{ matrix.env }}-libtiff
+                    mingw-w64-${{ matrix.env }}-rust
+                    mingw-w64-${{ matrix.env }}-sqlite3
+                    mingw-w64-${{ matrix.env }}-pkgconf
+                    mingw-w64-${{ matrix.env }}-pkg-config
+                    mingw-w64-${{ matrix.env }}-proj
+                    mingw-w64-${{ matrix.env }}-clang
           - uses: actions/checkout@v3
           - name: Build
             run: |
+                set MSYSTEM=${{ matrix.sys }}
                 cargo build
                 cargo test
 
@@ -68,16 +68,15 @@ jobs:
             uses: msys2/setup-msys2@v2
             with:
                 msystem: ${{ matrix.sys }}
-                install: |
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-sqlite3
-                    pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-proj
-                    pacman -S --noconfirm mingw-w64-${{ matrix.env }}-clang
+                install: >-
+                    mingw-w64-${{ matrix.env }}-gcc
+                    mingw-w64-${{ matrix.env }}-cmake
+                    mingw-w64-${{ matrix.env }}-libtiff
+                    mingw-w64-${{ matrix.env }}-rust
+                    mingw-w64-${{ matrix.env }}-sqlite3
+                    mingw-w64-${{ matrix.env }}-pkgconf
+                    mingw-w64-${{ matrix.env }}-pkg-config
+                    mingw-w64-${{ matrix.env }}-clang
 
           - name: Build and Test
             run: |
