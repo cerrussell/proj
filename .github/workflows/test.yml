@@ -32,6 +32,7 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-gcc
                     mingw-w64-${{ matrix.arch }}-libtiff
                     mingw-w64-${{ matrix.arch }}-cmake
+                    mingw-w64-${{ matrix.arch }}-pkg-config
                     mingw-w64-${{ matrix.arch }}-rust
                     mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-proj
@@ -40,9 +41,9 @@ jobs:
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                PKGCONF=$(pkgconf --version)
-                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
-                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                #PKGCONF=$(pkgconf --version)
+                #pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
+                #pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
 
@@ -66,18 +67,19 @@ jobs:
                 msystem: ${{ matrix.compiler }}
                 install: >-
                     mingw-w64-${{ matrix.arch }}-gcc
-                    mingw-w64-${{ matrix.arch  }}-libtiff
-                    mingw-w64-${{ matrix.arch  }}-cmake
-                    mingw-w64-${{ matrix.arch  }}-rust
-                    mingw-w64-${{ matrix.arch  }}-sqlite3
+                    mingw-w64-${{ matrix.arch }}-libtiff
+                    mingw-w64-${{ matrix.arch }}-cmake
+                    mingw-w64-${{ matrix.arch }}-pkg-config
+                    mingw-w64-${{ matrix.arch }}-rust
+                    mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-clang
 
           - name: Build and Test
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                PKGCONF=$(pkgconf --version)
-                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
-                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                #PKGCONF=$(pkgconf --version)
+                #pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
+                #pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
 
