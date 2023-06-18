@@ -45,12 +45,13 @@ jobs:
                 cargo build
                 cargo test
     proj-sys-windows:
-        runs-on: windows-latest
         strategy:
             matrix:
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
-                features: [""]
+                os: ['windows-2022', 'windows-2019']
+                features: ["", --features network]
+        runs-on: ${{ matrix.os }}
         defaults:
             run:
                 shell: msys2 {0}
@@ -73,12 +74,7 @@ jobs:
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
-                cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
-          - name: Test
-            run: |
-                set MSYSTEM=${{ matrix.compiler }}
                 cargo test
-
 # jobs:
 # # The `ci-result` job doesn't actually test anything - it just aggregates the
 # # overall build status for bors, otherwise our bors.toml would need an entry
