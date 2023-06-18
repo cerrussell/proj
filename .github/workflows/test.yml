@@ -40,7 +40,8 @@ jobs:
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf
+                PKGCONF=$(pkgconf --version):$PKGCONF
+                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
@@ -74,7 +75,8 @@ jobs:
           - name: Build and Test
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
-                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf
+                PKGCONF=$(pkgconf --version):$PKGCONF
+                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
                 cargo test
