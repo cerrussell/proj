@@ -42,10 +42,13 @@ jobs:
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 #PKGCONF=$(pkgconf --version)
-                pacman -R -dd mingw-w64-${{ matrix.arch }}-pkgconf-$PKGCONF
-                #pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
-                cargo test
+                
+          - name: Test
+            run: |
+                 cargo test
 
     proj-sys-windows:
         runs-on: windows-latest
@@ -54,14 +57,12 @@ jobs:
         strategy:
             matrix:
                 arch: ['ucrt-x86_64']
-                compiler_short: ['UCRT']
                 compiler: ['UCRT64']
                 features: [""]
         defaults:
             run:
                 shell: msys2 {0}
         steps:
-          - uses: actions/checkout@v3
           - name: Install dependencies
             uses: msys2/setup-msys2@v2
             with:
@@ -73,14 +74,20 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-rust
                     mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-clang
+                    
+          - uses: actions/checkout@v3
 
-          - name: Build and Test
+          - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 #PKGCONF=$(pkgconf --version)
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cargo build
+                
+          - name: Test
+            run: |
+                set MSYSTEM=${{ matrix.compiler }}
                 cargo test
 
 # jobs:
