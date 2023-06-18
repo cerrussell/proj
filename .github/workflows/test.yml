@@ -26,6 +26,7 @@ jobs:
           - uses: actions/checkout@v3  
           - name: Install dependencies
             run: |
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 set MSYSTEM=${{ matrix.sys }}
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
@@ -62,8 +63,8 @@ jobs:
           - uses: actions/checkout@v3
           - name: Install dependencies
             run: |
-                set MSYSTEM=${{ matrix.sys }}
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gcc
+                set MSYSTEM=${{ matrix.sys }}
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-cmake
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-libtiff
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-rust
