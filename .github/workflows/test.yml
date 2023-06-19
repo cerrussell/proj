@@ -10,39 +10,6 @@ on:
 
 name: proj ci    
 jobs:
-    proj-windows:
-        strategy:
-            matrix:
-                arch: ['ucrt-x86_64']
-                compiler: ['UCRT64']
-                os: ['windows-2022', 'windows-2019']
-                features: ["", --features network]
-        runs-on: ${{ matrix.os }}
-        defaults:
-            run: 
-                shell: msys2 {0}
-        steps:            
-          - name: Get msys2 into PATH
-            shell: pwsh
-            run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          - name: Install dependencies
-            uses: msys2/setup-msys2@v2
-            with:
-                msystem: ${{ matrix.compiler }}
-                install: >-
-                    mingw-w64-${{ matrix.arch }}-gcc
-                    mingw-w64-${{ matrix.arch }}-cmake
-                    mingw-w64-${{ matrix.arch }}-rust
-                    #mingw-w64-${{ matrix.arch }}-proj
-                    mingw-w64-${{ matrix.arch }}-clang
-          - uses: actions/checkout@v3
-          - name: Build
-            run: |
-                set MSYSTEM=${{ matrix.compiler }}
-                pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
-                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
-                cargo test  --config ./proj-sys/Cargo.toml --config Cargo.toml
                 
     proj-sys-windows:
         strategy:
@@ -74,6 +41,7 @@ jobs:
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                cd proj-sys
                 cargo build
                 cargo test 
 # jobs:
