@@ -35,12 +35,14 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-clang 
           - uses: actions/checkout@v3
+            with:
+                sparse-checkout: |
+                    proj-sys
           - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                cd $GITHUB_WORKSPACE/proj/proj-sys
                 cargo build
                 cargo test 
 # jobs:
