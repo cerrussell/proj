@@ -20,10 +20,8 @@ jobs:
                     - { sys: ucrt64,  env: ucrt-x86_64 }
                     - { sys: clang64, env: clang-x86_64 }
                 exclude:
-                    - { os: windows-2019, features: "" }
-                    - { os: windows-2019, features: "--features network" }
-                    - { os: windows-2022, features: "" }
-                    - { os: windows-2022, features: "--features network" }
+                    - os: ''
+
 
         runs-on: ${{ matrix.os }}
         defaults:
