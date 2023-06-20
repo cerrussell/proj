@@ -43,10 +43,10 @@ jobs:
             with:
                 msystem: ${{ matrix.sys }}
                 install: >-
-                    mingw-w64-${{ matrix.env }}-libtiff
                     mingw-w64-${{ matrix.env }}-gcc
                     mingw-w64-${{ matrix.env }}-cmake
                     mingw-w64-${{ matrix.env }}-rust
+                    mingw-w64-${{ matrix.env }}-proj
                     mingw-w64-${{ matrix.env }}-clang
             
           - name: Replace msys2 default of pkgconf with pkg-config
@@ -54,10 +54,10 @@ jobs:
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
         
-          - name: Install proj to link to
-            run: |
-                wget https://repo.msys2.org/mingw/${{ matrix.sys }}/mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
-                pacman -U --noconfirm mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
+          #- name: Install proj to link to
+            #run: |
+                #wget https://repo.msys2.org/mingw/${{ matrix.sys }}/mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
+                #pacman -U --noconfirm mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
             
           # This would be how to make sure the MSYS2 build environment can find an existing proj
           #- name: Export existing proj installation to msys2 path
