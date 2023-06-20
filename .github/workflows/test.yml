@@ -57,7 +57,7 @@ jobs:
                 mv -T msys2.ini.new msys2.ini
             
           - name: Replace msys2 default of pkgconf with pkg-config
-             run:|
+            run: |
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 
