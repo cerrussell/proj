@@ -27,7 +27,17 @@ jobs:
           - name: Get msys2 into PATH
             shell: pwsh
             run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            
+          - name: Restore cache
+            id: cache-restore
+            uses: actions/cache/restore@v3
+            with:
+                path: |
+                    C:\msys64\ucrt64
+                key: ${{ matrix.os }}
+                
           - name: Install dependencies
+            if: steps.cache-restore.outputs.cache-hit != 'true'
             uses: msys2/setup-msys2@v2
             with:
                 msystem: ${{ matrix.compiler }}
@@ -39,23 +49,34 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-rust
                     mingw-w64-${{ matrix.arch }}-clang
                     
-          # - name: Install dependencies to build libproj from source
-            # if: matrix.libproj=='false'
-            # run: |
-                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-libtiff
-                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-sqlite3
+          - name: Set UCRT64 to be the default msys2
+            run: |
+                cd /
+                sed -e '/^foo/d' -e 's/MSYSTEM=MSYS/MSYSTEM=UCRT64/' msys2.ini > msys2.ini.new
+                rm msys2.ini
+                mv -T msys2.ini.new msys2.ini
             
-            # name: Install proj package from MSYS2 repo
-            # run: |
-                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-proj
+          - name: Replace msys2 default of pkgconf with pkg-config
+             run:|
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                
+          - name: Save cache
+            id: cache-save
+            if: steps.cache-restore.outputs.cache-hit != 'true'
+            uses: actions/cache/save@v3
+            with:
+                path: |
+                    C:\msys64\ucrt64
+                key: ${{ matrix.os }}
+            
+          - name: Check exports
+            run: |
+                export -p
 
           - uses: actions/checkout@v3
           - name: Build
             run: |
-                set MSYSTEM=${{ matrix.compiler }}
-                pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
-                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                echo $PATH
                 #cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
                 cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
                 
