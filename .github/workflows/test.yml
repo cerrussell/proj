@@ -8,17 +8,17 @@ on:
             - trying
             - winbuilds
     pull_request:
-    workflow_dispatch:
  
 jobs:
     proj-windows:
         strategy:
             matrix:
-                #libproj: ['true','false']
-                arch: ['ucrt-x86_64']
-                compiler: ['UCRT64']
-                os: ['windows-2022']
-                features: [""]
+                os: ['windows-2019','windows-2022']
+                features: ["", "--features network"]
+                include:
+                    - { sys: mingw64, env: x86_64 }
+                    - { sys: ucrt64,  env: ucrt-x86_64 }
+                    - { sys: clang64, env: clang-x86_64 }
         runs-on: ${{ matrix.os }}
         defaults:
             run: 
@@ -33,52 +33,50 @@ jobs:
             uses: actions/cache/restore@v3
             with:
                 path: |
-                    C:\msys64\ucrt64
-                key: ${{ matrix.os }}
+                    C:\msys64\${{ matrix.sys }}
+                key: ${{ matrix.os }}-${{ matrix.sys }}
                 
           - name: Install dependencies
             if: steps.cache-restore.outputs.cache-hit != 'true'
             uses: msys2/setup-msys2@v2
             with:
-                msystem: ${{ matrix.compiler }}
+                msystem: ${{ matrix.sys }}
                 install: >-
-                    mingw-w64-${{ matrix.arch }}-libtiff
-                    mingw-w64-${{ matrix.arch }}-gcc
-                    mingw-w64-${{ matrix.arch }}-cmake
-                    mingw-w64-${{ matrix.arch }}-sqlite3
-                    mingw-w64-${{ matrix.arch }}-rust
-                    mingw-w64-${{ matrix.arch }}-clang
-                    
-          - name: Set UCRT64 to be the default msys2
-            run: |
-                cd /
-                sed -e '/^foo/d' -e 's/MSYSTEM=MSYS/MSYSTEM=UCRT64/' msys2.ini > msys2.ini.new
-                rm msys2.ini
-                mv -T msys2.ini.new msys2.ini
+                    mingw-w64-${{ matrix.env }}-libtiff
+                    mingw-w64-${{ matrix.env }}-gcc
+                    mingw-w64-${{ matrix.env }}-cmake
+                    mingw-w64-${{ matrix.env }}-rust
+                    mingw-w64-${{ matrix.env }}-clang
             
           - name: Replace msys2 default of pkgconf with pkg-config
             run: |
-                pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
-                pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
-                
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+        
+          - name: Install proj to link to
+            run: |
+                wget https://repo.msys2.org/mingw/${{ matrix.sys }}/mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
+                pacman -U mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
+            
+          # This would be how to make sure the MSYS2 build environment can find an existing proj
+          #- name: Export existing proj installation to msys2 path
+          #  run: |
+                # export PATH="drive_letter/path_to_existing_proj_installation":$PATH
+            
           - name: Save cache
             id: cache-save
             if: steps.cache-restore.outputs.cache-hit != 'true'
             uses: actions/cache/save@v3
             with:
                 path: |
-                    C:\msys64\ucrt64
-                key: ${{ matrix.os }}
-            
-          - name: Check exports
-            run: |
-                export -p
+                    C:\msys64\${{ matrix.sys }}
+                key: ${{ matrix.os }}-${{ matrix.sys }}
 
           - uses: actions/checkout@v3
           - name: Build
             run: |
-                #cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
-                cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
+                cargo build
+                cargo test
                 
     # proj-sys-windows:
         # strategy:
