@@ -10,19 +10,23 @@ on:
     pull_request:
     workflow_dispatch:
  
-jobs:           
-    proj-sys-windows:
+jobs:
+    proj-windows:
         strategy:
             matrix:
+                libproj: ['true','false']
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
                 os: ['windows-2022']
                 features: [""]
         runs-on: ${{ matrix.os }}
         defaults:
-            run:
+            run: 
                 shell: msys2 {0}
-        steps:
+        steps:            
+          - name: Get msys2 into PATH
+            shell: pwsh
+            run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           - name: Install dependencies
             uses: msys2/setup-msys2@v2
             with:
@@ -31,22 +35,65 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-libtiff
                     mingw-w64-${{ matrix.arch }}-gcc
                     mingw-w64-${{ matrix.arch }}-cmake
-                    mingw-w64-${{ matrix.arch }}-rust
                     mingw-w64-${{ matrix.arch }}-sqlite3
-                    mingw-w64-${{ matrix.arch }}-clang 
+                    mingw-w64-${{ matrix.arch }}-rust
+                    mingw-w64-${{ matrix.arch }}-clang
+                    
+          # - name: Install dependencies to build libproj from source
+            # if: matrix.libproj=='false'
+            # run: |
+                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-libtiff
+                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-sqlite3
+            
+            # name: Install proj package from MSYS2 repo
+            # run: |
+                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-proj
+
           - uses: actions/checkout@v3
-          - name: Replace pkgconf with pkg-config
+          - name: Build
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                #cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
+                cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
                 
-          - name: Build and test
-            run: |
-                set MSYSTEM=${{ matrix.compiler }}
-                cargo rustc -p proj-sys
-                cd proj-sys
-                cargo test
+    # proj-sys-windows:
+        # strategy:
+            # matrix:
+                # arch: ['ucrt-x86_64']
+                # compiler: ['UCRT64']
+                # os: ['windows-2022']
+                # features: [""]
+        # runs-on: ${{ matrix.os }}
+        # defaults:
+            # run:
+                # shell: msys2 {0}
+        # steps:
+          # - name: Install dependencies
+            # uses: msys2/setup-msys2@v2
+            # with:
+                # msystem: ${{ matrix.compiler }}
+                # install: >-
+                    # mingw-w64-${{ matrix.arch }}-libtiff
+                    # mingw-w64-${{ matrix.arch }}-gcc
+                    # mingw-w64-${{ matrix.arch }}-cmake
+                    # mingw-w64-${{ matrix.arch }}-rust
+                    # mingw-w64-${{ matrix.arch }}-sqlite3
+                    # mingw-w64-${{ matrix.arch }}-clang 
+          # - uses: actions/checkout@v3
+          # - name: Replace pkgconf with pkg-config
+            # run: |
+                # set MSYSTEM=${{ matrix.compiler }}
+                # pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
+                # pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                
+          # - name: Build and test
+            # run: |
+                # set MSYSTEM=${{ matrix.compiler }}
+                # cargo rustc -p proj-sys
+                # cd proj-sys
+                # cargo test
 
 # jobs:
 # # The `ci-result` job doesn't actually test anything - it just aggregates the
