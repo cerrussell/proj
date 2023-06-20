@@ -41,7 +41,7 @@ jobs:
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
                 cd proj-sys
-                cargo build
+                cargo rustc --config Cargo.toml
                 cargo test
 # jobs:
 # # The `ci-result` job doesn't actually test anything - it just aggregates the
