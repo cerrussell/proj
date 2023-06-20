@@ -12,16 +12,21 @@ on:
 jobs:
     proj-windows:
         strategy:
+            fail-fast: false
             matrix:
-                os: ['windows-2019','windows-2022']
-                features: ["", "--features network"]
                 include:
-                    - { sys: mingw64, env: x86_64 }
-                    - { sys: ucrt64,  env: ucrt-x86_64 }
-                    - { sys: clang64, env: clang-x86_64 }
-                exclude:
-                    - os: ''
-
+                    - { os: windows-2019, features: "", sys: mingw64, env: x86_64 }
+                    - { os: windows-2019, features: "", sys: ucrt64,  env: ucrt-x86_64 }
+                    - { os: windows-2019, features: "", sys: clang64, env: clang-x86_64 }
+                    - { os: windows-2019, features: "--features network", sys: mingw64, env: x86_64 }
+                    - { os: windows-2019, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
+                    - { os: windows-2019, features: "--features network", sys: clang64, env: clang-x86_64 }
+                    - { os: windows-2022, features: "", sys: mingw64, env: x86_64 }
+                    - { os: windows-2022, features: "", sys: ucrt64,  env: ucrt-x86_64 }
+                    - { os: windows-2022, features: "", sys: clang64, env: clang-x86_64 }
+                    - { os: windows-2022, features: "--features network", sys: mingw64, env: x86_64 }
+                    - { os: windows-2022, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
+                    - { os: windows-2022, features: "--features network", sys: clang64, env: clang-x86_64 }
 
         runs-on: ${{ matrix.os }}
         defaults:
