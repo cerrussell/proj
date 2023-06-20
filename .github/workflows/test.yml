@@ -35,14 +35,19 @@ jobs:
                     mingw-w64-${{ matrix.arch }}-sqlite3
                     mingw-w64-${{ matrix.arch }}-clang 
           - uses: actions/checkout@v3
-          - name: Build
+          - name: Replace pkgconf with pkg-config
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                
+          - name: Build and test
+            run: |
+                set MSYSTEM=${{ matrix.compiler }}
                 cd proj-sys
-                cargo rustc --config Cargo.toml
+                cargo build
                 cargo test
+
 # jobs:
 # # The `ci-result` job doesn't actually test anything - it just aggregates the
 # # overall build status for bors, otherwise our bors.toml would need an entry
