@@ -22,7 +22,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         defaults:
             run: 
-                shell: msys2 UCRT64
+                shell: msys2 {0}
         steps:            
           - name: Get msys2 into PATH
             shell: pwsh
