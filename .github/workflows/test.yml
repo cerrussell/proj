@@ -1,3 +1,5 @@
+name: proj ci
+
 on:
     push:
         branches:
@@ -7,10 +9,8 @@ on:
             - winbuilds
     pull_request:
     workflow_dispatch:
-
-name: proj ci    
-jobs:
-                
+ 
+jobs:           
     proj-sys-windows:
         strategy:
             matrix:
@@ -40,6 +40,7 @@ jobs:
                     proj-sys
           - name: Build
             run: |
+                pwd
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
