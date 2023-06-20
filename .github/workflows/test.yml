@@ -19,6 +19,12 @@ jobs:
                     - { sys: mingw64, env: x86_64 }
                     - { sys: ucrt64,  env: ucrt-x86_64 }
                     - { sys: clang64, env: clang-x86_64 }
+                exclude:
+                    - { os: windows-2019, features: "" }
+                    - { os: windows-2019, features: "--features network" }
+                    - { os: windows-2022, features: "" }
+                    - { os: windows-2022, features: "--features network" }
+
         runs-on: ${{ matrix.os }}
         defaults:
             run: 
@@ -27,17 +33,9 @@ jobs:
           - name: Get msys2 into PATH
             shell: pwsh
             run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            
-          - name: Restore cache
-            id: cache-restore
-            uses: actions/cache/restore@v3
-            with:
-                path: |
-                    C:\msys64\${{ matrix.sys }}
-                key: ${{ matrix.os }}-${{ matrix.sys }}
                 
           - name: Install dependencies
-            if: steps.cache-restore.outputs.cache-hit != 'true'
+            #if: steps.cache-restore.outputs.cache-hit != 'true'
             uses: msys2/setup-msys2@v2
             with:
                 msystem: ${{ matrix.sys }}
@@ -62,21 +60,12 @@ jobs:
           #- name: Export existing proj installation to msys2 path
           #  run: |
                 # export PATH="drive_letter/path_to_existing_proj_installation":$PATH
-            
-          - name: Save cache
-            id: cache-save
-            if: steps.cache-restore.outputs.cache-hit != 'true'
-            uses: actions/cache/save@v3
-            with:
-                path: |
-                    C:\msys64\${{ matrix.sys }}
-                key: ${{ matrix.os }}-${{ matrix.sys }}
 
           - uses: actions/checkout@v3
           - name: Build
             run: |
-                cargo build
-                cargo test
+                cargo build ${{ matrix.features }}
+                cargo test ${{ matrix.features }}
                 
     # proj-sys-windows:
         # strategy:
