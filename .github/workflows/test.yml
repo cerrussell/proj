@@ -15,18 +15,18 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    # - { os: windows-2019, features: "", sys: mingw64, env: x86_64 }
+                     - { os: windows-2019, features: "", sys: mingw64, env: x86_64 }
                      - { os: windows-2019, features: "", sys: ucrt64,  env: ucrt-x86_64 }
-                    # - { os: windows-2019, features: "", sys: clang64, env: clang-x86_64 }
-                    # - { os: windows-2019, features: "--features network", sys: mingw64, env: x86_64 }
+                     - { os: windows-2019, features: "", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2019, features: "--features network", sys: mingw64, env: x86_64 }
                      - { os: windows-2019, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
-                    # - { os: windows-2019, features: "--features network", sys: clang64, env: clang-x86_64 }
-                    # - { os: windows-2022, features: "", sys: mingw64, env: x86_64 }
+                     - { os: windows-2019, features: "--features network", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2022, features: "", sys: mingw64, env: x86_64 }
                      - { os: windows-2022, features: "", sys: ucrt64,  env: ucrt-x86_64 }
-                    # - { os: windows-2022, features: "", sys: clang64, env: clang-x86_64 }
-                    # - { os: windows-2022, features: "--features network", sys: mingw64, env: x86_64 }
+                     - { os: windows-2022, features: "", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2022, features: "--features network", sys: mingw64, env: x86_64 }
                      - { os: windows-2022, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
-                    # - { os: windows-2022, features: "--features network", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2022, features: "--features network", sys: clang64, env: clang-x86_64 }
 
         runs-on: ${{ matrix.os }}
         defaults:
@@ -54,15 +54,6 @@ jobs:
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
         
-          #- name: Install proj to link to
-            #run: |
-                #wget https://repo.msys2.org/mingw/${{ matrix.sys }}/mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
-                #pacman -U --noconfirm mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
-            
-          # This would be how to make sure the MSYS2 build environment can find an existing proj
-          #- name: Export existing proj installation to msys2 path
-          #  run: |
-                # export PATH="drive_letter/path_to_existing_proj_installation":$PATH
 
           - uses: actions/checkout@v3
           - name: Build
