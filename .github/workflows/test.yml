@@ -6,7 +6,6 @@ on:
             - main
             - staging
             - trying
-            - winbuilds
     pull_request:
  
 jobs:
