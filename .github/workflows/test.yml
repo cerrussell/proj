@@ -1,13 +1,13 @@
-on:
-  push:
-    branches:
-      - main
-      - staging
-      - trying
-  pull_request:
-  workflow_dispatch:
-
 name: proj ci
+
+on:
+    push:
+        branches:
+            - main
+            - staging
+            - trying
+    pull_request:
+ 
 jobs:
   # The `ci-result` job doesn't actually test anything - it just aggregates the
   # overall build status for bors, otherwise our bors.toml would need an entry
@@ -148,3 +148,54 @@ jobs:
       - run: brew install pkg-config
       - run: brew install proj
       - run: cargo test
+      
+  proj-windows:
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                     - { os: windows-2019, features: "", sys: mingw64, env: x86_64 }
+                     - { os: windows-2019, features: "", sys: ucrt64,  env: ucrt-x86_64 }
+                     - { os: windows-2019, features: "", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2019, features: "--features network", sys: mingw64, env: x86_64 }
+                     - { os: windows-2019, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
+                     - { os: windows-2019, features: "--features network", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2022, features: "", sys: mingw64, env: x86_64 }
+                     - { os: windows-2022, features: "", sys: ucrt64,  env: ucrt-x86_64 }
+                     - { os: windows-2022, features: "", sys: clang64, env: clang-x86_64 }
+                     - { os: windows-2022, features: "--features network", sys: mingw64, env: x86_64 }
+                     - { os: windows-2022, features: "--features network", sys: ucrt64,  env: ucrt-x86_64 }
+                     - { os: windows-2022, features: "--features network", sys: clang64, env: clang-x86_64 }
+
+        runs-on: ${{ matrix.os }}
+        defaults:
+            run: 
+                shell: msys2 {0}
+        steps:            
+          - name: Get msys2 into PATH
+            shell: pwsh
+            run: echo "C:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+                
+          - name: Install dependencies
+            #if: steps.cache-restore.outputs.cache-hit != 'true'
+            uses: msys2/setup-msys2@v2
+            with:
+                msystem: ${{ matrix.sys }}
+                install: >-
+                    mingw-w64-${{ matrix.env }}-gcc
+                    mingw-w64-${{ matrix.env }}-cmake
+                    mingw-w64-${{ matrix.env }}-rust
+                    mingw-w64-${{ matrix.env }}-proj
+                    mingw-w64-${{ matrix.env }}-clang
+            
+          - name: Replace msys2 default of pkgconf with pkg-config
+            run: |
+                pacman -R -dd --noconfirm mingw-w64-${{ matrix.env }}-pkgconf
+                pacman -S --noconfirm mingw-w64-${{ matrix.env }}-pkg-config
+        
+
+          - uses: actions/checkout@v3
+          - name: Build
+            run: |
+                cargo build ${{ matrix.features }} --config proj-sys/Cargo.toml --config Cargo.toml
+                cargo test ${{ matrix.features }} --config proj-sys/Cargo.toml --config Cargo.toml
