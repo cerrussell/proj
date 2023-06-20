@@ -45,7 +45,7 @@ jobs:
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
                 cd proj-sys
-                cargo build
+                cargo rustc --config Cargo.toml
                 cargo test
 
 # jobs:
