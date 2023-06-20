@@ -14,7 +14,7 @@ jobs:
     proj-windows:
         strategy:
             matrix:
-                libproj: ['true','false']
+                #libproj: ['true','false']
                 arch: ['ucrt-x86_64']
                 compiler: ['UCRT64']
                 os: ['windows-2022']
@@ -55,6 +55,7 @@ jobs:
                 set MSYSTEM=${{ matrix.compiler }}
                 pacman -R -dd --noconfirm mingw-w64-${{ matrix.arch }}-pkgconf
                 pacman -S --noconfirm mingw-w64-${{ matrix.arch }}-pkg-config
+                echo $PATH
                 #cargo build --config ./proj-sys/Cargo.toml --config Cargo.toml
                 cargo test --config ./proj-sys/Cargo.toml --config Cargo.toml
                 
