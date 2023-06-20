@@ -56,7 +56,7 @@ jobs:
           - name: Install proj to link to
             run: |
                 wget https://repo.msys2.org/mingw/${{ matrix.sys }}/mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
-                pacman -U mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
+                pacman -U --noconfirm mingw-w64-${{ matrix.env }}-proj-9.1.0-1-any.pkg.tar.zst
             
           # This would be how to make sure the MSYS2 build environment can find an existing proj
           #- name: Export existing proj installation to msys2 path
