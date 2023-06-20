@@ -24,6 +24,7 @@ jobs:
       - proj-sys-ubuntu
       - proj-macos
       - proj-sys-macos
+      - proj-windows
     steps:
       - name: Mark the job as a success
         if: success()
