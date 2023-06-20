@@ -44,8 +44,8 @@ jobs:
           - name: Build and test
             run: |
                 set MSYSTEM=${{ matrix.compiler }}
+                cargo rustc -p proj-sys
                 cd proj-sys
-                cargo rustc --config Cargo.toml
                 cargo test
 
 # jobs:
